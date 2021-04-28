@@ -46,7 +46,7 @@ begin
 	
 	process(sel, clr)
 	begin
-		anod <= "1111";
+		anod <= "0000";
 		if clr = '0' then
 			anod(conv_integer(sel)) <= '0';
 		end if;
