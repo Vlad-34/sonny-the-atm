@@ -1,79 +1,64 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
-use ieee.numeric_std.all;
 
-entity afisare is
+entity afisor is
 	port(valoare: in std_logic_vector(0 to 15);
-	cifra_unitati, cifra_zeci, cifra_sute, cifra_mii: inout std_logic_vector(0 to 6);
-	testvar: out integer); -- test port
-end afisare;
+		clk: in std_logic;
+		clr: in std_logic;
+		catod: out std_logic_vector(0 to 6);
+		anod: out std_logic_vector(0 to 3));
+end entity;
 
-architecture comportamental of afisare is  
-begin	
-	process(valoare)
-	variable valoare_intreaga: integer := to_integer(signed(valoare)); -- conv_integer(valoare);
-	variable unitati: integer := valoare_intreaga mod 10;  
-	variable zeci: integer := (valoare_intreaga / 10) mod 10;
-	variable sute: integer := (valoare_intreaga / 100) mod 10;
-	variable mii: integer := valoare_intreaga / 1000; 
+architecture comportamental of afisor is
+	signal sel: std_logic_vector(0 to 1); -- selectie
+	signal cifra: std_logic_vector(0 to 3); -- valoare afisor
+	signal clk_div: std_logic_vector(0 to 15); -- divizor de frecventa
+begin
+	sel <= clk_div(14 to 15); -- selectia
 	
+	process(sel, valoare)
 	begin
-	testvar <= valoare_intreaga; -- test signal
-		case unitati is
-			when 0 => cifra_unitati <= "1111110"; -- 0 -- 7E
-			when 1 => cifra_unitati <= "1100000"; -- 1 -- 60
-			when 2 => cifra_unitati <= "1011011"; -- 2 -- 5B
-			when 3 => cifra_unitati <= "1110011"; -- 3 -- 73
-			when 4 => cifra_unitati <= "1100101"; -- 4 -- 65
-			when 5 => cifra_unitati <= "0110111"; -- 5 -- 37
-			when 6 => cifra_unitati <= "0111111"; -- 6 -- 3F 
-			when 7 => cifra_unitati <= "1100010"; -- 7 -- 62
-			when 8 => cifra_unitati <= "1111111"; -- 8 -- 7F
-			when 9 => cifra_unitati <= "1110111"; -- 9 -- 77
-			when others => cifra_unitati <= "0000000"; -- altele -- 00
-		end case; 
-		
-		case zeci is
-			when 0 => cifra_zeci <= "1111110"; -- 0 -- 7E
-			when 1 => cifra_zeci <= "1100000"; -- 1 -- 60
-			when 2 => cifra_zeci <= "1011011"; -- 2 -- 5B
-			when 3 => cifra_zeci <= "1110011"; -- 3 -- 73
-			when 4 => cifra_zeci <= "1100101"; -- 4 -- 65
-			when 5 => cifra_zeci <= "0110111"; -- 5 -- 37
-			when 6 => cifra_zeci <= "0111111"; -- 6 -- 3F 
-			when 7 => cifra_zeci <= "1100010"; -- 7 -- 62
-			when 8 => cifra_zeci <= "1111111"; -- 8 -- 7F
-			when 9 => cifra_zeci <= "1110111"; -- 9 -- 77
-			when others => cifra_zeci <= "0000000"; -- altele -- 00
-		end case;	 
-		
-		case sute is
-			when 0 => cifra_sute <= "1111110"; -- 0 -- 7E
-			when 1 => cifra_sute <= "1100000"; -- 1 -- 60
-			when 2 => cifra_sute <= "1011011"; -- 2 -- 5B
-			when 3 => cifra_sute <= "1110011"; -- 3 -- 73
-			when 4 => cifra_sute <= "1100101"; -- 4 -- 65
-			when 5 => cifra_sute <= "0110111"; -- 5 -- 37
-			when 6 => cifra_sute <= "0111111"; -- 6 -- 3F  
-			when 7 => cifra_sute <= "1100010"; -- 7 -- 62
-			when 8 => cifra_sute <= "1111111"; -- 8 -- 7F
-			when 9 => cifra_sute <= "1110111"; -- 9 -- 77
-			when others => cifra_sute <= "0000000"; -- altele -- 00
-		end case;
-		
-		case mii is
-			when 0 => cifra_mii <= "1111110"; -- 0 -- 7E
-			when 1 => cifra_mii <= "1100000"; -- 1 -- 60
-			when 2 => cifra_mii <= "1011011"; -- 2 -- 5B
-			when 3 => cifra_mii <= "1110011"; -- 3 -- 73
-			when 4 => cifra_mii <= "1100101"; -- 4 -- 65
-			when 5 => cifra_mii <= "0110111"; -- 5 -- 37
-			when 6 => cifra_mii <= "0111111"; -- 6 -- 3F  
-			when 7 => cifra_mii <= "1100010"; -- 7 -- 62
-			when 8 => cifra_mii <= "1111111"; -- 8 -- 7F
-			when 9 => cifra_mii <= "1110111"; -- 9 -- 77
-			when others => cifra_mii <= "0000000"; -- altele -- 00
+		case sel is
+			when "00" => cifra <= valoare(0 to 3);
+			when "01" => cifra <= valoare(4 to 7);
+			when "10" => cifra <= valoare(8 to 11);
+			when others => cifra <= valoare(12 to 15);
 		end case;
 	end process;
+	
+	process(cifra)
+	begin
+		case cifra is
+			when "0000" => catod  <= "1111110"; -- 0 -- 7E
+			when "0001" => catod  <= "1100000"; -- 1 -- 60
+			when "0010" => catod  <= "1011011"; -- 2 -- 5B
+			when "0011" => catod  <= "1110011"; -- 3 -- 73
+			when "0100" => catod  <= "1100101"; -- 4 -- 65  
+			when "0101" => catod  <= "0110111"; -- 5 -- 37
+			when "0110" => catod  <= "0111111"; -- 6 -- 3F
+			when "0111" => catod  <= "1100010"; -- 7 -- 62
+			when "1000" => catod  <= "1111111"; -- 8 -- 7F
+			when "1001" => catod  <= "1110111"; -- 9 -- 77
+			when others => catod  <= "0000000"; -- altele -- 00
+		end case;
+	end process;
+	
+	process(sel, clr)
+	begin
+		anod <= "1111";
+		if clr = '0' then
+			anod(conv_integer(sel)) <= '0';
+		end if;
+	end process;
+	
+	process(clk, clr)
+	begin
+		if clr = '1' then
+			clk_div <= (others => '0');
+		elsif clk'event and clk = '1' then
+			clk_div <= clk_div + 1;
+		end if;
+	end process;
+	
 end comportamental;
