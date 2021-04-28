@@ -13,10 +13,10 @@ end entity;
 architecture comportamental of afisor is
 	signal sel: std_logic_vector(0 to 1); -- selectie
 	signal cifra: std_logic_vector(0 to 3); -- valoare afisor
-	signal clk_div: std_logic_vector(0 to 15); -- divizor de frecventa
+	signal clk_div: std_logic_vector(0 to 15); -- divizor de frecventa 
+	
 begin
 	sel <= clk_div(14 to 15); -- selectia
-	
 	process(sel, valoare)
 	begin
 		case sel is
@@ -60,5 +60,4 @@ begin
 			clk_div <= clk_div + 1;
 		end if;
 	end process;
-	
 end comportamental;
