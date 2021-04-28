@@ -12,7 +12,7 @@ end afisare;
 architecture comportamental of afisare is  
 begin	
 	process(valoare)
-	variable valoare_intreaga: integer :=to_integer(signed(valoare)); -- conv_integer(valoare);
+	variable valoare_intreaga: integer := to_integer(signed(valoare)); -- conv_integer(valoare);
 	variable unitati: integer := valoare_intreaga mod 10;  
 	variable zeci: integer := (valoare_intreaga / 10) mod 10;
 	variable sute: integer := (valoare_intreaga / 100) mod 10;
