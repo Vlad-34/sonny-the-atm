@@ -4,6 +4,7 @@ use ieee.std_logic_unsigned.all;
 
 entity RAM is
 	port(clk: in std_logic;
+	mode: in std_logic; -- 0 - read; 1 - write
 	valoare: inout std_logic_vector(0 to 15); -- valori pe 16 biti
 	adresa: in std_logic_vector(0 to 3)); -- 4 seturi de 3 campuri care se scriu pe 4 biti
 end RAM;
@@ -17,5 +18,12 @@ signal memorie: memory := (
 	);
 
 begin
-	valoare <= memorie(conv_integer(adresa));
+	process(clk, mode, valoare, adresa)
+	begin
+	if mode = '0' then
+		valoare <= memorie(conv_integer(adresa));
+	else
+		memorie(conv_integer(adresa)) <= valoare;
+	end if;
+	end process;
 end comportamental;
