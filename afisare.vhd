@@ -16,7 +16,7 @@ architecture comportamental of afisor is
 	signal clk_div: std_logic_vector(0 to 15); -- divizor de frecventa 
 	
 begin
-	sel <= clk_div(14 to 15); -- selectia
+	sel <= clk_div(14 to 15); -- selectie
 	process(sel, valoare)
 	begin
 		case sel is
@@ -46,9 +46,9 @@ begin
 	
 	process(sel, clr)
 	begin
-		anod <= "0000";
+		anod <= "1111";
 		if clr = '0' then
-			anod(conv_integer(sel)) <= '0';
+			anod(conv_integer(sel)) <= '1';
 		end if;
 	end process;
 	
