@@ -1,0 +1,64 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
+
+entity RAM is
+	port(clk: in std_logic;
+	mode: in std_logic_vector(1 downto 0); -- 00 - read carduri; 01 - read PIN-uri; 10 - read sume; 11 - write PIN-uri;
+	valoare: inout std_logic_vector(0 to 15); -- valori pe 16 biti
+	adresa: in std_logic_vector(0 to 3); -- 4 seturi de 3 campuri care se scriu pe 4 biti
+	output: out std_logic);
+end RAM;
+
+architecture comportamental of RAM is	  
+type memory is array(0 to 11) of std_logic_vector(0 to 15);
+signal memorie: memory := (
+	"1001111010010011", "1011101000100010", "0110010100001010", "1111010000011100", -- carduri
+	"1001011101010111", "1101000011001100", "0011101010001101", "1110001010011100", -- PIN-uri
+	"0000101101001101", "0010101001001110", "0011011010000100", "0011100110100111"  -- sume
+	);
+
+begin
+
+	process(clk, mode, valoare, adresa)	  
+	
+	variable ok: std_logic:='0'; -- returnam 1 pentru succes 
+	variable id: integer;
+	
+	begin
+		
+	case mode is
+		when "00" => 
+		if valoare = memorie(0) then ok:='1'; id:=0;
+		elsif valoare = memorie (1) then ok:='1'; id:=1;
+		elsif valoare = memorie (2) then ok:='1'; id:=2;
+		elsif valoare = memorie (3) then ok:='1'; id:=3;
+		end if;
+		
+		when "01" =>
+		if valoare = memorie(4) then ok:='1';
+		elsif valoare = memorie (5) then ok:='1';
+		elsif valoare = memorie (6) then ok:='1';
+		elsif valoare = memorie (7) then ok:='1';
+		end if;
+			
+		when "10" =>
+		if valoare = memorie(8) then ok:='1';
+		elsif valoare = memorie (9) then ok:='1';
+		elsif valoare = memorie (10) then ok:='1';
+		elsif valoare = memorie (11) then ok:='1'; 
+		end if;
+		
+		when "11" => 
+		if id = 0 then memorie(4) <= valoare;
+		elsif id = 1 then memorie (5) <= valoare; 
+		elsif id = 2 then memorie (6) <= valoare;
+		elsif id = 3 then memorie (7) <= valoare;
+		end if;
+		ok:='1';
+		
+		when others => NULL;
+	end case;
+
+	end process;
+end comportamental;
