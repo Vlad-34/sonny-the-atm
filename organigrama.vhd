@@ -1,17 +1,19 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;
+library work;
 
-entity bancomat is
+use work.pachet_stari.all;
+
+entity organigrama is
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
 	operatiune:	in bit_vector(0 to 1);
-	LED_chitanta: out std_logic);
-end bancomat;
+	LED_chitanta: out std_logic;
+	stare_curenta: inout type_states);
+end organigrama;
 	
-architecture organigrama of bancomat is
-	type type_states is (introducere_card, introducere_PIN, alegere_operatiune, interogare_sold, introducere_PIN_nou, actualizare_PIN,
-introducere_suma_depunere, actualizare_cont_depunere, introducere_suma_retragere,actualizare_cont_retragere, emitere_chitanta, alta_operatiune);
+architecture comportamental of organigrama is
 
 	signal stare, stare_urmatoare: type_states;
 
@@ -80,4 +82,4 @@ begin
 
 		end case;	
 	end process;
-end organigrama;
+end comportamental;
