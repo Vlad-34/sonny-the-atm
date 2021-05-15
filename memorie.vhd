@@ -26,29 +26,30 @@ begin
 	begin 
 		
 	ok <= '0'; -- returnam 1 pentru succes 
-		
-	case mode is
-		when "00" => 
-		if valoare = memorie(0) then ok<='1'; id<=0;
-		elsif valoare = memorie (1) then ok<='1'; id<=1;
-		elsif valoare = memorie (2) then ok<='1'; id<=2;
-		elsif valoare = memorie (3) then ok<='1'; id<=3;
-		end if;
-		
-		when "01" => 
-		if valoare = memorie(id + 4) then ok <= '1';
-		end if;
+	if clk'event and clk = '1' then	
+		case mode is
+			when "00" => 
+			if valoare = memorie(0) then ok<='1'; id<=0;
+			elsif valoare = memorie (1) then ok<='1'; id<=1;
+			elsif valoare = memorie (2) then ok<='1'; id<=2;
+			elsif valoare = memorie (3) then ok<='1'; id<=3;
+			end if;
 			
-		when "10" =>
-		if valoare = memorie(id + 8) then ok <= '1'; 
-		end if;
-		
-		when "11" => 
-		memorie(id + 4) <= valoare;
-		ok<='1';
-		
-		when others => NULL;
-	end case;
+			when "01" => 
+			if valoare = memorie(id + 4) then ok <= '1';
+			end if;
+				
+			when "10" =>
+			if valoare = memorie(id + 8) then ok <= '1'; 
+			end if;
+			
+			when "11" => 
+			memorie(id + 4) <= valoare;
+			ok<='1';
+			
+			when others => NULL;
+		end case;
+	end if;
 
 	end process;
 end comportamental;
