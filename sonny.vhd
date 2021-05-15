@@ -1,6 +1,9 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
+use ieee.std_logic_arith.all;  
+library work;
+
+use work.pachet_stari.all;
 
 entity sonny is
 	port(clk, rst: in std_logic;
@@ -15,8 +18,9 @@ architecture structural of sonny is
 component organigrama is
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
-	operatiune: in bit_vector(0 to 1);
-	LED_chitanta: out std_logic);
+	operatiune:	in bit_vector(0 to 1);
+	LED_chitanta: out std_logic;
+	stare_curenta: inout type_states);
 end component;
 
 component afisor is
