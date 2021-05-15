@@ -21,7 +21,7 @@ signal memorie: memory := (
 
 begin
 
-	process(clk, mode, valoare, adresa)	  
+	process(clk, mode, valoare, adresa, ok, id)	  
 	
 	begin 
 		
