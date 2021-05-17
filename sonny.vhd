@@ -84,7 +84,7 @@ begin
 
 	memory1: memorie port map(clk, "00", '0', card_semnal, card_valid); -- daca cardul e valid 
 	memory2: memorie port map(clk, "01", '0', PIN_semnal, PIN_valid); -- daca PIN-ul e valid
-	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta);	-- organigrama stare_curenta
+	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta); -- organigrama stare_curenta
 	memory3: memorie port map(clk, "10", '0',val_de_afisat); -- citire suma din memorie
 	afisare: afisor port map(clk, val_de_afisat, catod, anod); -- afisare
 	memory4: memorie port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
