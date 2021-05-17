@@ -24,7 +24,7 @@ architecture structural2 of sonny is
 component organigrama
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
-	operatiune:	in std_logic_vector(1 downto 0);
+	operatiune: in std_logic_vector(1 downto 0);
 	LED_chitanta: out std_logic;
 	stare_curenta: in type_states);
 end component;
