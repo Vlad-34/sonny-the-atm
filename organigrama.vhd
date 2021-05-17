@@ -8,17 +8,18 @@ use work.pachet_stari.all;
 entity organigrama is
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
-	operatiune:	in bit_vector(0 to 1);
+	operatiune:	in std_logic_vector(1 downto 0);
 	LED_chitanta: out std_logic;
-	stare_curenta: inout type_states);
+	stare_curenta: in type_states);
 end organigrama;
 	
 architecture comportamental of organigrama is
 
 	signal stare, stare_urmatoare: type_states;
 
-begin								 
-	CLS: process(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni)
+begin	
+
+	CLS: process(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni, operatiune, stare_curenta)
 	begin
 		if rst = '1' then
 			stare <= introducere_card;
@@ -28,7 +29,8 @@ begin
 	end process;	  	 
 	
 	CLC: process(stare, card_valid, PIN_valid, operatiune, chitanta, revenire_operatiuni)
-	begin
+	begin	 
+
 		case stare is
 			when introducere_card =>
 				if card_valid = '1' then stare_urmatoare <= introducere_PIN;
