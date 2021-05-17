@@ -1,85 +1,99 @@
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.std_logic_arith.all;
+use ieee.std_logic_arith.all;  
 library work;
 
 use work.pachet_stari.all;
 
-entity organigrama is
+entity sonny is
+	port(clk, rst: in std_logic;
+	card: in std_logic_vector(15 downto 0);
+	PIN: in std_logic_vector(15 downto 0);
+	operatie: in std_logic_vector(1 downto 0);
+	fonduri: in std_logic_vector(15 downto 0); -- din bancomat
+	fonduri_persoana: in std_logic_vector(15 downto 0);
+	catod: out std_logic_vector(6 downto 0);
+	anod: out std_logic_vector(3 downto 0);
+	chitantaIn: in std_logic;
+	chitantaOut: out std_logic;
+	alta_operatiune: in std_logic;
+	PIN_nou: in std_logic_vector(15 downto 0));
+end sonny;
+
+architecture structural of sonny is
+
+component organigrama
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
-	operatiune:	in bit_vector(0 to 1);
+	operatiune:	in std_logic_vector(1 downto 0);
 	LED_chitanta: out std_logic;
-	stare_curenta: inout type_states);
-end organigrama;
-	
-architecture comportamental of organigrama is
+	stare_curenta: in type_states);
+end component;
 
-	signal stare, stare_urmatoare: type_states;
+component afisor
+	port(valoare: in std_logic_vector(15 downto 0);
+		clk: in std_logic;
+		catod: out std_logic_vector(6 downto 0);
+		anod: out std_logic_vector(3 downto 0));
+end component;
 
-begin								 
-	CLS: process(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni, operatiune, stare_curenta)
+component memorie
+	port(clk: in std_logic;
+	mode: in std_logic_vector(1 downto 0); -- 00 - read carduri; 01 - read PIN-uri; 10 - read sume; 11 - write PIN-uri;
+	mode2: in std_logic;
+	valoare: inout std_logic_vector(15 downto 0); -- valori pe 16 biti
+	ok: out std_logic); -- daca operatia se efectueaza cu succes);
+end component;
+
+component sumator
+	port(A, B: in std_logic_vector(15 downto 0);
+	S: out std_logic_vector(15 downto 0));
+end component;
+
+component scazator
+	port(A, B: in std_logic_vector(15 downto 0);
+	D: out std_logic_vector(15 downto 0));
+end component;	
+
+component comparator_mic
+	port(A, B: in std_logic_vector(15 downto 0);
+	rez: out std_logic);
+end component;
+
+signal card_valid: std_logic; 
+signal PIN_valid: std_logic;  
+signal cardsemnal: std_logic_vector(15 downto 0); 
+signal PINsemnal: std_logic_vector(15 downto 0);
+signal fonduri_suficiente: std_logic;
+signal stare_curenta: type_states;
+signal val_de_afisat: std_logic_vector(15 downto 0);
+signal PIN_nou_semnal: std_logic_vector(15 downto 0);
+signal suprascriere_suma_semnal_depunere: std_logic_vector(15 downto 0); --
+signal suprascriere_suma_semnal_retragere: std_logic_vector(15 downto 0); --
+
+begin
+	process(card, PIN)
 	begin
-		if rst = '1' then
-			stare <= introducere_card;
-		elsif clk'event and clk = '1' then
-			stare <= stare_urmatoare;
-		end if;	  
-	end process;	  	 
-	
-	CLC: process(stare, card_valid, PIN_valid, operatiune, chitanta, revenire_operatiuni)
-	begin
-		case stare is
-			when introducere_card =>
-				if card_valid = '1' then stare_urmatoare <= introducere_PIN;
-					else stare_urmatoare <= introducere_card;
-					end if;	 
-					
-			when introducere_PIN =>
-				if PIN_valid = '1' then stare_urmatoare <= alegere_operatiune;
-				else stare_urmatoare <= introducere_PIN; 
-				end if;
-					
-			when alegere_operatiune =>			
-				if operatiune = "00" then stare_urmatoare <= interogare_sold; -- ramura 1
-				elsif operatiune = "01" then stare_urmatoare <= introducere_PIN_nou; -- ramura 2
-				elsif operatiune = "10" then stare_urmatoare <= introducere_suma_depunere; -- ramura 3
-				elsif operatiune = "11" then stare_urmatoare <= introducere_suma_retragere; -- ramura 4
-				end if;
-			
-			when interogare_sold =>
-				stare_urmatoare <= alta_operatiune;	-- ramura 1
-			
-			when introducere_PIN_nou =>
-				stare_urmatoare <= actualizare_PIN; -- ramura 2
-			
-			when actualizare_PIN =>
-				stare_urmatoare	<= emitere_chitanta;
-			
-			when introducere_suma_depunere =>
-			stare_urmatoare <= actualizare_cont_depunere; -- ramura 3
-			
-			when actualizare_cont_depunere =>
-				stare_urmatoare <= emitere_chitanta;
-			
-			when introducere_suma_retragere =>
-				if fonduri_suficiente = '1' then stare_urmatoare <= actualizare_cont_retragere; -- ramura 4
-				else stare_urmatoare <=	introducere_suma_retragere;
-				end if;
-				
-			when actualizare_cont_retragere =>
-				stare_urmatoare <= emitere_chitanta;
-			
-			when emitere_chitanta =>
-				if chitanta = '1' then LED_chitanta <= '1';
-				end if;
-				stare_urmatoare <= alta_operatiune;
-				
-			when alta_operatiune =>
-				if revenire_operatiuni = '1' then stare_urmatoare <= alegere_operatiune;
-				else stare_urmatoare <= introducere_card;
-				end if;
-
-		end case;	
+		cardsemnal <= card;
+		PINsemnal <= PIN;
+		card_valid <= '0';
+		PIN_valid <= '0';
+		fonduri_suficiente <= '0';
+		stare_curenta <= introducere_card; -- nu sensibilitate	
+		PIN_nou_semnal <= PIN_nou;	
+		
 	end process;
-end comportamental;
+
+	memory1: memorie port map(clk, "00", '0',cardsemnal, card_valid); -- daca cardul e valid 
+	memory2: memorie port map(clk, "01", '0',PINsemnal, PIN_valid); -- daca PIN-ul e valid
+	comparator: comparator_mic port map (fonduri_persoana, fonduri,fonduri_suficiente); -- daca sunt fonduri in bancomat
+	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta);	-- organigrama stare_curenta
+	memory3: memorie port map(clk, "10", '0',val_de_afisat); -- citire suma din memorie
+	afisare: afisor port map(val_de_afisat, clk, catod, anod); -- afisare
+	memory4: memorie port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
+	memory5: memorie port map(clk, "11", '1',suprascriere_suma_semnal_depunere);-- suprascriere suma depunere
+	memor6: memorie port map(clk, "11", '1',suprascriere_suma_semnal_retragere);-- suprascriere suma retragere 
+	adder: sumator port map(fonduri,fonduri_persoana,suprascriere_suma_semnal_depunere); -- depunere
+	substractor: scazator port map(fonduri,fonduri_persoana,suprascriere_suma_semnal_retragere); -- retragere; urmeaza comparatorul
+
+end structural;
