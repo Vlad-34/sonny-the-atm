@@ -2,7 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_arith.all;  
 library work;
-
 use work.pachet_stari.all;
 
 entity sonny is
@@ -10,14 +9,14 @@ entity sonny is
 	card: in std_logic_vector(15 downto 0);
 	PIN: in std_logic_vector(15 downto 0);
 	operatie: in std_logic_vector(1 downto 0);
+	PIN_nou: in std_logic_vector(15 downto 0);
 	fonduri: in std_logic_vector(15 downto 0); -- din bancomat
 	fonduri_persoana: in std_logic_vector(15 downto 0);
 	catod: out std_logic_vector(6 downto 0);
 	anod: out std_logic_vector(3 downto 0);
 	chitantaIn: in std_logic;
 	chitantaOut: out std_logic;
-	alta_operatiune: in std_logic;
-	PIN_nou: in std_logic_vector(15 downto 0));
+	alta_operatiune: in std_logic);
 end sonny;
 
 architecture structural of sonny is
@@ -62,38 +61,38 @@ end component;
 
 signal card_valid: std_logic; 
 signal PIN_valid: std_logic;  
-signal cardsemnal: std_logic_vector(15 downto 0); 
-signal PINsemnal: std_logic_vector(15 downto 0);
 signal fonduri_suficiente: std_logic;
+signal card_semnal: std_logic_vector(15 downto 0); 
+signal PIN_semnal: std_logic_vector(15 downto 0);
 signal stare_curenta: type_states;
 signal val_de_afisat: std_logic_vector(15 downto 0);
 signal PIN_nou_semnal: std_logic_vector(15 downto 0);
-signal suprascriere_suma_semnal_depunere: std_logic_vector(15 downto 0); --
-signal suprascriere_suma_semnal_retragere: std_logic_vector(15 downto 0); --
+signal suma_dupa_depunere: std_logic_vector(15 downto 0); --
+signal suma_dupa_retragere: std_logic_vector(15 downto 0); --
 
 begin
 	process(card, PIN)
 	begin
-		cardsemnal <= card;
-		PINsemnal <= PIN;
+		card_semnal <= card;
+		PIN_semnal <= PIN;
 		card_valid <= '0';
 		PIN_valid <= '0';
 		fonduri_suficiente <= '0';
-		stare_curenta <= introducere_card; -- nu sensibilitate	
+		stare_curenta <= introducere_card;
 		PIN_nou_semnal <= PIN_nou;	
-		
 	end process;
 
-	memory1: memorie port map(clk, "00", '0',cardsemnal, card_valid); -- daca cardul e valid 
-	memory2: memorie port map(clk, "01", '0',PINsemnal, PIN_valid); -- daca PIN-ul e valid
-	comparator: comparator_mic port map (fonduri_persoana, fonduri,fonduri_suficiente); -- daca sunt fonduri in bancomat
+	memory1: memorie port map(clk, "00", '0', card_semnal, card_valid); -- daca cardul e valid 
+	memory2: memorie port map(clk, "01", '0', PIN_semnal, PIN_valid); -- daca PIN-ul e valid
 	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta);	-- organigrama stare_curenta
 	memory3: memorie port map(clk, "10", '0',val_de_afisat); -- citire suma din memorie
 	afisare: afisor port map(val_de_afisat, clk, catod, anod); -- afisare
 	memory4: memorie port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
-	memory5: memorie port map(clk, "11", '1',suprascriere_suma_semnal_depunere);-- suprascriere suma depunere
-	memor6: memorie port map(clk, "11", '1',suprascriere_suma_semnal_retragere);-- suprascriere suma retragere 
-	adder: sumator port map(fonduri,fonduri_persoana,suprascriere_suma_semnal_depunere); -- depunere
-	substractor: scazator port map(fonduri,fonduri_persoana,suprascriere_suma_semnal_retragere); -- retragere; urmeaza comparatorul
-
+	adder: sumator port map(fonduri, fonduri_persoana, suma_dupa_depunere); -- depunere
+	memory5: memorie port map(clk, "11", '1',suma_dupa_depunere);-- suprascriere suma dupa depunere
+	comparator: comparator_mic port map (fonduri_persoana, fonduri, fonduri_suficiente); -- daca sunt fonduri in bancomat
+	substractor: scazator port map(fonduri, fonduri_persoana, suma_dupa_retragere); -- retragere
+	memor6: memorie port map(clk, "11", '1', suma_dupa_retragere);-- suprascriere suma retragere
+	-- unitatea de control (organigrama) coordoneaza toate celelalte functii				 
+	
 end structural;
