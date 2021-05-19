@@ -4,27 +4,27 @@ use ieee.std_logic_arith.all;
 library work;
 use work.pachet_stari.all;
 
-entity sonny2 is
+entity sonny is
 	port(clk, rst: in std_logic;
 	card: in std_logic_vector(15 downto 0);
 	PIN: in std_logic_vector(15 downto 0);
 	operatie: in std_logic_vector(1 downto 0); -- cele 4 ramuri
 	PIN_nou: in std_logic_vector(15 downto 0);
-	fonduri: in std_logic_vector(15 downto 0); -- din bancomat
+	fonduri: inout std_logic_vector(15 downto 0); -- din bancomat
 	fonduri_persoana: in std_logic_vector(15 downto 0); -- input de la utilizator pentru depunere/ retragere
 	catod: out std_logic_vector(6 downto 0);
 	anod: out std_logic_vector(3 downto 0);
 	chitantaIn: in std_logic;
 	chitantaOut: out std_logic;
 	alta_operatiune: in std_logic); -- jump la cele 4 ramuri
-end sonny2;
+end sonny;
 
-architecture structural2 of sonny is
+architecture structural of sonny is
 
 component organigrama
 	port(clk, rst: in std_logic;
 	card_valid, PIN_valid, fonduri_suficiente, chitanta, revenire_operatiuni: in std_logic;
-	operatiune: in std_logic_vector(1 downto 0);
+	operatiune:	in std_logic_vector(1 downto 0);
 	LED_chitanta: out std_logic;
 	stare_curenta: in type_states);
 end component;
@@ -84,15 +84,18 @@ begin
 
 	memory1: memorie port map(clk, "00", '0', card_semnal, card_valid); -- daca cardul e valid 
 	memory2: memorie port map(clk, "01", '0', PIN_semnal, PIN_valid); -- daca PIN-ul e valid
-	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta); -- organigrama stare_curenta
+	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta);	-- organigrama stare_curenta
 	memory3: memorie port map(clk, "10", '0',val_de_afisat); -- citire suma din memorie
 	afisare: afisor port map(clk, val_de_afisat, catod, anod); -- afisare
 	memory4: memorie port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
-	adder: sumator port map(fonduri, fonduri_persoana, suma_dupa_depunere); -- depunere
-	memory5: memorie port map(clk, "11", '1',suma_dupa_depunere);-- suprascriere suma dupa depunere
+	adder: sumator port map(fonduri, fonduri_persoana, suma_dupa_depunere); -- depunere in cont	
+	adder2: sumator port map(fonduri, val_de_afisat, fonduri); -- actualizare fonduri bancomat dupa depunere
+	memory5: memorie port map(clk, "11", '1',suma_dupa_depunere);-- suprascriere suma dupa depunere in cont
 	comparator: comparator_mic port map (fonduri_persoana, fonduri, fonduri_suficiente); -- daca sunt fonduri in bancomat
-	substractor: scazator port map(fonduri, fonduri_persoana, suma_dupa_retragere); -- retragere
-	memor6: memorie port map(clk, "11", '1', suma_dupa_retragere);-- suprascriere suma retragere
+	substractor: scazator port map(fonduri, fonduri_persoana, suma_dupa_retragere); -- retragere din cont
+	substractor2: scazator port map(fonduri, fonduri_persoana, fonduri); -- actualizare fonduri bancomat dupa retragere
+	memor6: memorie port map(clk, "11", '1', suma_dupa_retragere);-- suprascriere suma retragere in cont 
+	
 	-- unitatea de control (organigrama) coordoneaza toate celelalte functii				 
 	
-end structural2;
+end structural;
