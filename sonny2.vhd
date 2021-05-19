@@ -36,7 +36,7 @@ component afisor
 	anod: out std_logic_vector(3 downto 0));
 end component;
 
-component memorie is
+component memorie2 is
 	port(clk: in std_logic;
 	mode: in std_logic_vector(1 downto 0); -- 00 - read carduri; 01 - read PIN-uri; 10 - read sume; 11 - write PIN-uri;
 	mode2: in std_logic;
@@ -86,19 +86,19 @@ begin
 		PIN_nou_semnal <= PIN_nou;	
 	end process;
 
-	memory1: memorie port map(clk, "00", '0', card_semnal, nul, nul, card_valid); -- daca cardul e valid 
-	memory2: memorie port map(clk, "01", '0', PIN_semnal, nul, nul, PIN_valid); -- daca PIN-ul e valid
+	memory1: memorie2 port map(clk, "00", '0', card_semnal, nul, nul, card_valid); -- daca cardul e valid 
+	memory2: memorie2 port map(clk, "01", '0', PIN_semnal, nul, nul, PIN_valid); -- daca PIN-ul e valid
 	organigrama1: organigrama port map(clk, rst, card_valid, PIN_valid, fonduri_suficiente, chitantaIn, alta_operatiune, operatie, chitantaOut, stare_curenta);	-- organigrama stare_curenta
-	memory3: memorie port map(clk, "11", '0',val_de_afisat, nul, val_de_afisat); -- citire suma din memorie
+	memory3: memorie2 port map(clk, "11", '0',val_de_afisat, nul, val_de_afisat); -- citire suma din memorie
 	afisare: afisor port map(clk, val_de_afisat, catod, anod); -- afisare
-	memory4: memorie port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
+	memory4: memorie2 port map(clk, "11", '0',PIN_nou_semnal);  -- suprascriere PIN 
 	adder: sumator port map(fonduri, fonduri_persoana, suma_dupa_depunere); -- depunere in cont	
 	adder2: sumator port map(fonduri, val_de_afisat, fonduri); -- actualizare fonduri bancomat dupa depunere
-	memory5: memorie port map(clk, operatie, '1',PIN_semnal, suma_dupa_depunere, suma_dupa_depunere);-- suprascriere suma dupa depunere in cont
+	memory5: memorie2 port map(clk, operatie, '1',PIN_semnal, suma_dupa_depunere, suma_dupa_depunere);-- suprascriere suma dupa depunere in cont
 	comparator: comparator_mic port map (fonduri_persoana, fonduri, fonduri_suficiente); -- daca sunt fonduri in bancomat
 	substractor: scazator port map(fonduri, fonduri_persoana, suma_dupa_retragere); -- retragere din cont
 	substractor2: scazator port map(fonduri, fonduri_persoana, fonduri); -- actualizare fonduri bancomat dupa retragere
-	memory6: memorie port map(clk, operatie, '1', PIN_semnal, suma_dupa_retragere, suma_dupa_retragere);-- suprascriere suma retragere in cont 
+	memory6: memorie2 port map(clk, operatie, '1', PIN_semnal, suma_dupa_retragere, suma_dupa_retragere);-- suprascriere suma retragere in cont 
 	
 	-- unitatea de control (organigrama) coordoneaza toate celelalte functii				 
 	
