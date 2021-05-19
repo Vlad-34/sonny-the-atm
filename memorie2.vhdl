@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.std_logic_unsigned.all;
 
-entity memorie is
+entity memorie2 is
 	port(clk: in std_logic;
 	mode: in std_logic_vector(1 downto 0); -- 00 - read carduri; 01 - read PIN-uri; 10 - read sume; 11 - write PIN-uri;
 	mode2: in std_logic;
@@ -10,9 +10,9 @@ entity memorie is
 	valoareIntermed: inout std_logic_vector(15 downto 0);
 	valoareOut: out std_logic_vector(15 downto 0);
 	ok: out std_logic); -- daca operatia se efectueaza cu succes);
-end memorie;
+end memorie2;
 
-architecture comportamental of memorie is	  
+architecture comportamental of memorie2 is	  
 type memory is array(0 to 11) of std_logic_vector(0 to 15);
 signal memorie: memory := (
 	"1001111010010011", "1011101000100010", "0110010100001010", "1111010000011100", -- carduri
