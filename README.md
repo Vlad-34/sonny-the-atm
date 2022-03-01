@@ -1,2 +1,2 @@
-# Sonny (not a typo), the ATM
+# Sonny, the ATM
 Proiect A8 la PSN
